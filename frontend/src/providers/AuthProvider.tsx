@@ -24,7 +24,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
+// Determine the correct backend URL based on environment
+const getBackendUrl = () => {
+  // Check if we're running in development mode on localhost
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:8001';
+  }
+  
+  // Use the configured backend URL for production/preview
+  return Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
+};
+
+const BACKEND_URL = getBackendUrl();
 const API_BASE_URL = `${BACKEND_URL}/api`;
 
 // Configure axios defaults
