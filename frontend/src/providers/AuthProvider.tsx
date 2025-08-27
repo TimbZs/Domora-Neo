@@ -111,8 +111,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const clearAuth = async () => {
-    await SecureStore.deleteItemAsync('auth_token');
-    await SecureStore.deleteItemAsync('user_data');
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        // Web fallback
+        window.localStorage.removeItem('auth_token');
+        window.localStorage.removeItem('user_data');
+      } else {
+        // Native app
+        await SecureStore.deleteItemAsync('auth_token');
+        await SecureStore.deleteItemAsync('user_data');
+      }
+    } catch (error) {
+      console.error('Error clearing auth:', error);
+    }
     setToken(null);
     setUser(null);
   };
