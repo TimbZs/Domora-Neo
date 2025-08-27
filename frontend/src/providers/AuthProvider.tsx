@@ -138,8 +138,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { access_token, user: userData } = response.data;
 
       // Store auth data
-      await SecureStore.setItemAsync('auth_token', access_token);
-      await SecureStore.setItemAsync('user_data', JSON.stringify(userData));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        // Web fallback
+        window.localStorage.setItem('auth_token', access_token);
+        window.localStorage.setItem('user_data', JSON.stringify(userData));
+      } else {
+        // Native app
+        await SecureStore.setItemAsync('auth_token', access_token);
+        await SecureStore.setItemAsync('user_data', JSON.stringify(userData));
+      }
 
       setToken(access_token);
       setUser(userData);
