@@ -26,13 +26,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Determine the correct backend URL based on environment
 const getBackendUrl = () => {
-  // Check if we're running in development mode on localhost
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:8001';
+  // For web development, use the configured backend URL with /api suffix
+  if (typeof window !== 'undefined') {
+    // Use the environment variable which points to the correct backend
+    return process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
   }
   
-  // Use the configured backend URL for production/preview
-  return Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
+  // For native apps, use the configured backend URL
+  return Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 };
 
 const BACKEND_URL = getBackendUrl();
