@@ -140,29 +140,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
+    console.log('🔄 AuthProvider: Login function called', { email, API_BASE_URL });
+    
     try {
+      console.log('📡 Making login request to:', `${API_BASE_URL}/auth/login`);
+      
       const response = await axios.post('/auth/login', {
         email,
         password
       });
 
+      console.log('✅ Login response received:', response.status);
       const { access_token, user: userData } = response.data;
 
       // Store auth data
       if (typeof window !== 'undefined' && window.localStorage) {
         // Web fallback
+        console.log('💾 Storing auth data in localStorage');
         window.localStorage.setItem('auth_token', access_token);
         window.localStorage.setItem('user_data', JSON.stringify(userData));
       } else {
         // Native app
+        console.log('💾 Storing auth data in SecureStore');
         await SecureStore.setItemAsync('auth_token', access_token);
         await SecureStore.setItemAsync('user_data', JSON.stringify(userData));
       }
 
       setToken(access_token);
       setUser(userData);
+      console.log('✅ Login successful, user set:', userData.email);
     } catch (error: any) {
-      const message = error.response?.data?.detail || 'Login failed';
+      console.error('❌ Login error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        config: {
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          method: error.config?.method
+        }
+      });
+      const message = error.response?.data?.detail || error.message || 'Login failed';
       throw new Error(message);
     }
   };
