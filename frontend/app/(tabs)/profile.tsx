@@ -100,10 +100,11 @@ export default function ProfileScreen() {
         router.push('/profile/support');
         break;
       default:
-    Alert.alert(
-      'Coming Soon',
-      `${profileOptions.find(o => o.id === optionId)?.title} will be available in a future update.`
-    );
+            Alert.alert(
+                'Coming Soon',
+                `${profileOptions.find(o => o.id === optionId)?.title} will be available in a future update.`
+            );
+    }
   };
 
   if (!user) {
