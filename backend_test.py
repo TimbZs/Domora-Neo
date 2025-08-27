@@ -161,6 +161,111 @@ class DomoraAPITester:
         else:
             self.log_result("Invalid Login", False, f"Expected 401, got {status}")
     
+    async def test_duplicate_email_registration(self):
+        """Test registration with already existing email"""
+        if not self.customer_user:
+            self.log_result("Duplicate Email Registration", False, "No customer user available")
+            return
+            
+        duplicate_registration = {
+            "email": self.customer_user['email'],  # Use existing email
+            "password": "AnotherPass123!",
+            "full_name": "Another User",
+            "role": "customer"
+        }
+        
+        success, response, status = await self.make_request(
+            'POST', '/auth/register', duplicate_registration
+        )
+        
+        # Should fail with 400
+        if not success and status == 400:
+            self.log_result("Duplicate Email Registration", True, "Correctly rejected duplicate email")
+        else:
+            self.log_result("Duplicate Email Registration", False, f"Expected 400, got {status}")
+    
+    async def test_login_wrong_password(self):
+        """Test login with correct email but wrong password"""
+        if not self.customer_user:
+            self.log_result("Login Wrong Password", False, "No customer user available")
+            return
+            
+        login_data = {
+            "email": self.customer_user['email'],
+            "password": "WrongPassword123!"
+        }
+        
+        success, response, status = await self.make_request(
+            'POST', '/auth/login', login_data
+        )
+        
+        # Should fail with 401
+        if not success and status == 401:
+            self.log_result("Login Wrong Password", True, "Correctly rejected wrong password")
+        else:
+            self.log_result("Login Wrong Password", False, f"Expected 401, got {status}")
+    
+    async def test_invalid_jwt_token(self):
+        """Test API access with invalid JWT token"""
+        invalid_token = "invalid.jwt.token"
+        
+        success, response, status = await self.make_request(
+            'GET', '/auth/me', token=invalid_token
+        )
+        
+        # Should fail with 401
+        if not success and status == 401:
+            self.log_result("Invalid JWT Token", True, "Correctly rejected invalid token")
+        else:
+            self.log_result("Invalid JWT Token", False, f"Expected 401, got {status}")
+    
+    async def test_missing_jwt_token(self):
+        """Test protected endpoint without JWT token"""
+        success, response, status = await self.make_request(
+            'GET', '/auth/me'  # No token provided
+        )
+        
+        # Should fail with 401 or 403
+        if not success and status in [401, 403]:
+            self.log_result("Missing JWT Token", True, "Correctly rejected missing token")
+        else:
+            self.log_result("Missing JWT Token", False, f"Expected 401/403, got {status}")
+    
+    async def test_registration_validation(self):
+        """Test registration with invalid data"""
+        # Test missing required fields
+        invalid_registration = {
+            "email": "test@test.com",
+            # Missing password, full_name, role
+        }
+        
+        success, response, status = await self.make_request(
+            'POST', '/auth/register', invalid_registration
+        )
+        
+        # Should fail with 422 (validation error)
+        if not success and status == 422:
+            self.log_result("Registration Validation", True, "Correctly rejected invalid registration data")
+        else:
+            self.log_result("Registration Validation", False, f"Expected 422, got {status}")
+    
+    async def test_login_validation(self):
+        """Test login with invalid data format"""
+        invalid_login = {
+            "email": "not-an-email",
+            "password": ""
+        }
+        
+        success, response, status = await self.make_request(
+            'POST', '/auth/login', invalid_login
+        )
+        
+        # Should fail with 422 (validation error) or 401
+        if not success and status in [401, 422]:
+            self.log_result("Login Validation", True, "Correctly rejected invalid login data")
+        else:
+            self.log_result("Login Validation", False, f"Expected 401/422, got {status}")
+    
     async def test_get_current_user(self):
         """Test JWT token validation"""
         if not self.customer_token:
