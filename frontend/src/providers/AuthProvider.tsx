@@ -187,7 +187,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (email: string, password: string, fullName: string, role: string) => {
+    console.log('🔄 AuthProvider: Register function called', { email, fullName, role, API_BASE_URL });
+    
     try {
+      console.log('📡 Making register request to:', `${API_BASE_URL}/auth/register`);
+      
       const response = await axios.post('/auth/register', {
         email,
         password,
@@ -195,23 +199,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role
       });
 
+      console.log('✅ Register response received:', response.status);
       const { access_token, user: userData } = response.data;
 
       // Store auth data
       if (typeof window !== 'undefined' && window.localStorage) {
         // Web fallback
+        console.log('💾 Storing auth data in localStorage');
         window.localStorage.setItem('auth_token', access_token);
         window.localStorage.setItem('user_data', JSON.stringify(userData));
       } else {
         // Native app
+        console.log('💾 Storing auth data in SecureStore');
         await SecureStore.setItemAsync('auth_token', access_token);
         await SecureStore.setItemAsync('user_data', JSON.stringify(userData));
       }
 
       setToken(access_token);
       setUser(userData);
+      console.log('✅ Registration successful, user set:', userData.email);
     } catch (error: any) {
-      const message = error.response?.data?.detail || 'Registration failed';
+      console.error('❌ Registration error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        config: {
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          method: error.config?.method
+        }
+      });
+      const message = error.response?.data?.detail || error.message || 'Registration failed';
       throw new Error(message);
     }
   };
