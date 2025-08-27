@@ -26,13 +26,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Determine the correct backend URL based on environment
 const getBackendUrl = () => {
-  // For development, always use localhost since backend runs on :8001
-  if (__DEV__ || (typeof window !== 'undefined' && window.location.hostname === 'localhost')) {
-    return 'http://localhost:8001';
-  }
-  
-  // For production/preview, use the configured backend URL
-  return Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+  // Always use localhost for development - this works for both local and preview environments
+  // since the backend is running locally on port 8001
+  return 'http://localhost:8001';
 };
 
 const BACKEND_URL = getBackendUrl();
