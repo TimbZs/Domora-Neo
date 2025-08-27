@@ -21,6 +21,9 @@ interface ServicePackage {
   base_price: number;
   duration_minutes: number;
   service_type: string;
+  features?: string[];
+  best_for?: string;
+  max_size?: string;
 }
 
 interface ServiceAddon {
@@ -29,6 +32,7 @@ interface ServiceAddon {
   description: string;
   price: number;
   service_type: string;
+  duration_minutes?: number;
 }
 
 const serviceTypes = [
