@@ -6,8 +6,8 @@ import {
   Pressable,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   Platform,
+  KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,6 +35,7 @@ export default function RegisterScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [feedback, setFeedback] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const updateField = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -70,7 +71,7 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     console.log('🚀 Register button clicked!');
     console.log('📝 Form data:', formData);
-    
+
     if (!validateForm()) {
       console.log('❌ Form validation failed');
       return;
@@ -78,20 +79,31 @@ export default function RegisterScreen() {
 
     console.log('✅ Form validation passed');
     setIsLoading(true);
-    
+    setFeedback(null);
+
     try {
       const { email, password, fullName, role } = formData;
       console.log('🔄 Attempting registration...', { email, fullName, role });
-      
+
       await register(email.toLowerCase().trim(), password, fullName.trim(), role);
-      
+
       console.log('✅ Registration successful!');
-      Alert.alert('Success!', 'Account created successfully! Welcome to Domora!', [
-        { text: 'Continue', onPress: () => router.replace('/(tabs)/home') }
-      ]);
+      const successMsg = 'Account created successfully! Welcome to Domora!';
+      if (Platform.OS === 'web') {
+        setFeedback({ text: successMsg, type: 'success' });
+      } else {
+        Alert.alert('Success!', successMsg, [
+          { text: 'Continue', onPress: () => router.replace('/(tabs)/home') }
+        ]);
+      }
     } catch (error: any) {
       console.error('❌ Registration error:', error);
-      Alert.alert('Registration Failed', error.message || 'Something went wrong. Please try again.');
+      const errorMsg = error.message || 'Something went wrong. Please try again.';
+      if (Platform.OS === 'web') {
+        setFeedback({ text: errorMsg, type: 'error' });
+      } else {
+        Alert.alert('Registration Failed', errorMsg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +128,17 @@ export default function RegisterScreen() {
               <Text style={styles.title}>Create Account</Text>
               <Text style={styles.subtitle}>Join Domora and get started</Text>
             </View>
+
+            {feedback && (
+              <Text
+                style={[
+                  styles.feedback,
+                  feedback.type === 'success' ? styles.success : styles.error,
+                ]}
+              >
+                {feedback.text}
+              </Text>
+            )}
 
             <View style={styles.form}>
               <View style={styles.inputGroup}>
@@ -426,5 +449,16 @@ const styles = StyleSheet.create({
   loginLink: {
     color: '#3b82f6',
     fontWeight: '600',
+  },
+  feedback: {
+    textAlign: 'center',
+    marginBottom: 16,
+    fontSize: 14,
+  },
+  success: {
+    color: '#22c55e',
+  },
+  error: {
+    color: '#ef4444',
   },
 });

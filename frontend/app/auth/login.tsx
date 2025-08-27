@@ -6,8 +6,8 @@ import {
   Pressable,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   Platform,
+  KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,31 +24,49 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [feedback, setFeedback] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const handleLogin = async () => {
     console.log('🚀 Login button clicked!');
     console.log('📝 Credentials:', { email: email, passwordLength: password.length });
-    
+
     if (!email.trim() || !password.trim()) {
       console.log('❌ Validation failed: Empty fields');
-      Alert.alert('Error', 'Please fill in all fields');
+      const errMsg = 'Please fill in all fields';
+      if (Platform.OS === 'web') {
+        setFeedback({ text: errMsg, type: 'error' });
+      } else {
+        Alert.alert('Error', errMsg);
+      }
       return;
     }
 
     console.log('✅ Validation passed');
     setIsLoading(true);
-    
+    setFeedback(null);
+
     try {
       console.log('🔄 Attempting login...', { email: email.toLowerCase().trim() });
       await login(email.toLowerCase().trim(), password);
-      
+
       console.log('✅ Login successful!');
-      Alert.alert('Welcome Back!', 'Successfully signed in to Domora!', [
-        { text: 'Continue', onPress: () => router.replace('/(tabs)/home') }
-      ]);
+      const successMsg = 'Successfully signed in to Domora!';
+      if (Platform.OS === 'web') {
+        setFeedback({ text: successMsg, type: 'success' });
+        router.replace('/(tabs)/home');
+      } else {
+        Alert.alert('Welcome Back!', successMsg, [
+          { text: 'Continue', onPress: () => router.replace('/(tabs)/home') }
+        ]);
+      }
     } catch (error: any) {
       console.error('❌ Login error:', error);
-      Alert.alert('Login Failed', error.message || 'Invalid email or password. Please try again.');
+      const errorMsg = error.message || 'Invalid email or password. Please try again.';
+      if (Platform.OS === 'web') {
+        setFeedback({ text: errorMsg, type: 'error' });
+      } else {
+        Alert.alert('Login Failed', errorMsg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -73,6 +91,17 @@ export default function LoginScreen() {
               <Text style={styles.title}>Welcome Back</Text>
               <Text style={styles.subtitle}>Sign in to your Domora account</Text>
             </View>
+
+            {feedback && (
+              <Text
+                style={[
+                  styles.feedback,
+                  feedback.type === 'success' ? styles.success : styles.error,
+                ]}
+              >
+                {feedback.text}
+              </Text>
+            )}
 
             <View style={styles.form}>
               <View style={styles.inputGroup}>
@@ -253,5 +282,16 @@ const styles = StyleSheet.create({
   registerLink: {
     color: '#3b82f6',
     fontWeight: '600',
+  },
+  feedback: {
+    textAlign: 'center',
+    marginBottom: 16,
+    fontSize: 14,
+  },
+  success: {
+    color: '#22c55e',
+  },
+  error: {
+    color: '#ef4444',
   },
 });
