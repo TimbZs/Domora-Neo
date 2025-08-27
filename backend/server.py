@@ -359,8 +359,8 @@ async def get_service_addons(service_type: Optional[ServiceType] = None):
 @api_router.post("/services/price-estimate", response_model=PriceEstimate)
 async def calculate_price_estimate(
     package_id: str,
-    addon_ids: List[str] = [],
     service_address: AddressModel,
+    addon_ids: List[str] = [],
     provider_id: Optional[str] = None
 ):
     """Calculate price estimate for a service"""
