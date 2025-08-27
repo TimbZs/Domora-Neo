@@ -660,118 +660,27 @@ async def create_provider_profile(
     return ProviderProfile(**profile_dict)
 
 # Initialize default data
+async def initialize_db():
+    """Initialize database with enhanced service packages and addons"""
+    
+    # Import enhanced service data
+    from enhanced_services import ENHANCED_SERVICE_DATA
+    
+    # Always refresh with latest enhanced data
+    await db.service_packages.delete_many({})
+    await db.service_addons.delete_many({})
+    
+    # Insert enhanced service data
+    await db.service_packages.insert_many(ENHANCED_SERVICE_DATA["packages"])
+    logging.info(f"Inserted {len(ENHANCED_SERVICE_DATA['packages'])} enhanced service packages")
+    
+    await db.service_addons.insert_many(ENHANCED_SERVICE_DATA["addons"])
+    logging.info(f"Inserted {len(ENHANCED_SERVICE_DATA['addons'])} enhanced service addons")
+
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database with default service packages and addons"""
-    
-    # Service packages
-    default_packages = [
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Basic House Cleaning",
-            "description": "Standard cleaning service for apartments and small homes",
-            "base_price": 45.0,
-            "duration_minutes": 120,
-            "service_type": ServiceType.HOUSE_CLEANING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Deep House Cleaning",
-            "description": "Comprehensive deep cleaning service",
-            "base_price": 75.0,
-            "duration_minutes": 180,
-            "service_type": ServiceType.HOUSE_CLEANING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Basic Car Wash",
-            "description": "Exterior wash and interior vacuum",
-            "base_price": 25.0,
-            "duration_minutes": 60,
-            "service_type": ServiceType.CAR_WASHING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Premium Car Detailing",
-            "description": "Full exterior and interior detailing",
-            "base_price": 80.0,
-            "duration_minutes": 180,
-            "service_type": ServiceType.CAR_WASHING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Lawn Mowing",
-            "description": "Basic lawn mowing service",
-            "base_price": 35.0,
-            "duration_minutes": 90,
-            "service_type": ServiceType.LANDSCAPING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Garden Maintenance",
-            "description": "Complete garden care and maintenance",
-            "base_price": 65.0,
-            "duration_minutes": 150,
-            "service_type": ServiceType.LANDSCAPING
-        }
-    ]
-    
-    # Service addons
-    default_addons = [
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Window Cleaning",
-            "description": "Interior and exterior window cleaning",
-            "price": 15.0,
-            "service_type": ServiceType.HOUSE_CLEANING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Oven Cleaning",
-            "description": "Deep oven and appliance cleaning",
-            "price": 20.0,
-            "service_type": ServiceType.HOUSE_CLEANING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Wax Protection",
-            "description": "Premium car wax protection",
-            "price": 25.0,
-            "service_type": ServiceType.CAR_WASHING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Engine Cleaning",
-            "description": "Engine bay cleaning and detailing",
-            "price": 30.0,
-            "service_type": ServiceType.CAR_WASHING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Hedge Trimming",
-            "description": "Hedge and bush trimming service",
-            "price": 20.0,
-            "service_type": ServiceType.LANDSCAPING
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Leaf Removal",
-            "description": "Autumn leaf cleanup service",
-            "price": 15.0,
-            "service_type": ServiceType.LANDSCAPING
-        }
-    ]
-    
-    # Insert if not exists
-    packages_count = await db.service_packages.count_documents({})
-    if packages_count == 0:
-        await db.service_packages.insert_many(default_packages)
-        logging.info("Inserted default service packages")
-    
-    addons_count = await db.service_addons.count_documents({})
-    if addons_count == 0:
-        await db.service_addons.insert_many(default_addons)
-        logging.info("Inserted default service addons")
+    """Initialize database on startup"""
+    await initialize_db()
 
 # Include router
 app.include_router(api_router)
