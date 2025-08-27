@@ -360,8 +360,8 @@ async def get_service_addons(service_type: Optional[ServiceType] = None):
 async def calculate_price_estimate(
     package_id: str,
     service_address: AddressModel,
-    addon_ids: List[str] = [],
-    provider_id: Optional[str] = None
+    provider_id: Optional[str] = None,
+    addon_ids: List[str] = []
 ):
     """Calculate price estimate for a service"""
     
