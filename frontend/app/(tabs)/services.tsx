@@ -199,6 +199,40 @@ export default function ServicesScreen() {
                 
                 <Text style={styles.packageDescription}>{pkg.description}</Text>
                 
+                {/* Features */}
+                {pkg.features && pkg.features.length > 0 && (
+                  <View style={styles.featuresContainer}>
+                    <Text style={styles.featuresTitle}>Includes:</Text>
+                    {pkg.features.slice(0, 3).map((feature, index) => (
+                      <View key={index} style={styles.featureItem}>
+                        <Ionicons name="checkmark" size={14} color="#10b981" />
+                        <Text style={styles.featureText}>{feature}</Text>
+                      </View>
+                    ))}
+                    {pkg.features.length > 3 && (
+                      <Text style={styles.moreFeatures}>
+                        +{pkg.features.length - 3} more features
+                      </Text>
+                    )}
+                  </View>
+                )}
+                
+                {/* Best For & Max Size */}
+                <View style={styles.packageMeta}>
+                  {pkg.best_for && (
+                    <View style={styles.metaItem}>
+                      <Ionicons name="star-outline" size={14} color="#f59e0b" />
+                      <Text style={styles.metaText}>Best for: {pkg.best_for}</Text>
+                    </View>
+                  )}
+                  {pkg.max_size && (
+                    <View style={styles.metaItem}>
+                      <Ionicons name="resize-outline" size={14} color="#8b5cf6" />
+                      <Text style={styles.metaText}>Up to {pkg.max_size}</Text>
+                    </View>
+                  )}
+                </View>
+                
                 <View style={styles.packageFooter}>
                   <View style={styles.durationContainer}>
                     <Ionicons name="time-outline" size={16} color="#94a3b8" />
@@ -354,6 +388,45 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     lineHeight: 20,
     marginBottom: 16,
+  },
+  featuresContainer: {
+    marginBottom: 16,
+  },
+  featuresTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#f8fafc',
+    marginBottom: 8,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  featureText: {
+    fontSize: 13,
+    color: '#94a3b8',
+    marginLeft: 8,
+    flex: 1,
+  },
+  moreFeatures: {
+    fontSize: 12,
+    color: '#64748b',
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
+  packageMeta: {
+    marginBottom: 16,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  metaText: {
+    fontSize: 13,
+    color: '#94a3b8',
+    marginLeft: 8,
   },
   packageFooter: {
     flexDirection: 'row',
