@@ -236,7 +236,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    await clearAuth();
+    console.log('🚪 Starting logout process...');
+    
+    // Clear auth state immediately for instant UI update
+    setToken(null);
+    setUser(null);
+    
+    // Clear stored data in background
+    clearAuth().catch(error => {
+      console.error('Error clearing stored auth data:', error);
+    });
+    
+    console.log('✅ Logout completed successfully');
   };
 
   const value = {
