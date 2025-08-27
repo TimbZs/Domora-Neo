@@ -525,9 +525,15 @@ class DomoraAPITester:
         print("\n🔐 AUTHENTICATION TESTS")
         await self.test_customer_registration()
         await self.test_provider_registration()
+        await self.test_duplicate_email_registration()
         await self.test_login()
         await self.test_invalid_login()
+        await self.test_login_wrong_password()
         await self.test_get_current_user()
+        await self.test_invalid_jwt_token()
+        await self.test_missing_jwt_token()
+        await self.test_registration_validation()
+        await self.test_login_validation()
         
         # Service Management Tests
         print("\n🛠️ SERVICE MANAGEMENT TESTS")
