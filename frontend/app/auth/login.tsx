@@ -26,17 +26,29 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
+    console.log('🚀 Login button clicked!');
+    console.log('📝 Credentials:', { email: email, passwordLength: password.length });
+    
     if (!email.trim() || !password.trim()) {
+      console.log('❌ Validation failed: Empty fields');
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
+    console.log('✅ Validation passed');
     setIsLoading(true);
+    
     try {
+      console.log('🔄 Attempting login...', { email: email.toLowerCase().trim() });
       await login(email.toLowerCase().trim(), password);
-      router.replace('/(tabs)/home');
+      
+      console.log('✅ Login successful!');
+      Alert.alert('Welcome Back!', 'Successfully signed in to Domora!', [
+        { text: 'Continue', onPress: () => router.replace('/(tabs)/home') }
+      ]);
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message);
+      console.error('❌ Login error:', error);
+      Alert.alert('Login Failed', error.message || 'Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
     }
