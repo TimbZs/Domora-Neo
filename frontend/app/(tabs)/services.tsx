@@ -257,6 +257,14 @@ export default function ServicesScreen() {
                 <View style={styles.addonContent}>
                   <Text style={styles.addonName}>{addon.name}</Text>
                   <Text style={styles.addonDescription}>{addon.description}</Text>
+                  {addon.duration_minutes && (
+                    <View style={styles.addonDuration}>
+                      <Ionicons name="time-outline" size={12} color="#64748b" />
+                      <Text style={styles.addonDurationText}>
+                        {formatDuration(addon.duration_minutes)}
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <Text style={styles.addonPrice}>+€{addon.price}</Text>
               </View>
