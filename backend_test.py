@@ -713,6 +713,18 @@ class DomoraAPITester:
         await self.test_get_service_addons()
         await self.test_price_estimate()
         
+        # Phase 2 Enhanced Service Catalog Tests
+        print("\n🚀 PHASE 2 ENHANCED SERVICE CATALOG TESTS")
+        await self.test_enhanced_service_packages_count()
+        await self.test_enhanced_service_addons_count()
+        await self.test_service_categories_distribution()
+        await self.test_addon_categories_distribution()
+        await self.test_enhanced_package_fields()
+        await self.test_enhanced_addon_duration_field()
+        await self.test_european_market_pricing()
+        await self.test_service_type_filtering()
+        await self.test_addon_type_filtering()
+        
         # Booking System Tests
         print("\n📅 BOOKING SYSTEM TESTS")
         await self.test_create_booking()
