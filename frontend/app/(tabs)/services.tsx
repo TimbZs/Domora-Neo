@@ -483,6 +483,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#10b981',
   },
+  addonDuration: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  addonDurationText: {
+    fontSize: 12,
+    color: '#64748b',
+    marginLeft: 4,
+  },
   addonNote: {
     fontSize: 12,
     color: '#64748b',
