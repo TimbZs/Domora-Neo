@@ -129,6 +129,9 @@ class ServicePackage(BaseModel):
     base_price: float  # in EUR
     duration_minutes: int
     service_type: ServiceType
+    features: Optional[List[str]] = []
+    best_for: Optional[str] = None
+    max_size: Optional[str] = None
 
 class ServiceAddon(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -136,6 +139,7 @@ class ServiceAddon(BaseModel):
     description: str
     price: float  # in EUR
     service_type: ServiceType
+    duration_minutes: Optional[int] = None
 
 class ProviderProfile(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
