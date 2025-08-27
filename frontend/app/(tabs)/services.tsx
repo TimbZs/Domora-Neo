@@ -69,8 +69,8 @@ export default function ServicesScreen() {
   const loadServices = async () => {
     try {
       const [packagesResponse, addonsResponse] = await Promise.all([
-        axios.get(`/api/services/packages?service_type=${selectedServiceType}`),
-        axios.get(`/api/services/addons?service_type=${selectedServiceType}`)
+        axios.get(`/services/packages?service_type=${selectedServiceType}`),
+        axios.get(`/services/addons?service_type=${selectedServiceType}`)
       ]);
       
       setPackages(packagesResponse.data);
