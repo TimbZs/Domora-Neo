@@ -68,15 +68,30 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
-    if (!validateForm()) return;
+    console.log('🚀 Register button clicked!');
+    console.log('📝 Form data:', formData);
+    
+    if (!validateForm()) {
+      console.log('❌ Form validation failed');
+      return;
+    }
 
+    console.log('✅ Form validation passed');
     setIsLoading(true);
+    
     try {
       const { email, password, fullName, role } = formData;
+      console.log('🔄 Attempting registration...', { email, fullName, role });
+      
       await register(email.toLowerCase().trim(), password, fullName.trim(), role);
-      router.replace('/(tabs)/home');
+      
+      console.log('✅ Registration successful!');
+      Alert.alert('Success!', 'Account created successfully! Welcome to Domora!', [
+        { text: 'Continue', onPress: () => router.replace('/(tabs)/home') }
+      ]);
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message);
+      console.error('❌ Registration error:', error);
+      Alert.alert('Registration Failed', error.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
