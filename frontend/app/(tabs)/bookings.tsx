@@ -68,7 +68,7 @@ export default function BookingsScreen() {
 
   const loadBookings = async () => {
     try {
-      const response = await axios.get('/api/bookings');
+      const response = await axios.get('/bookings');
       setBookings(response.data);
     } catch (error) {
       console.error('Error loading bookings:', error);
