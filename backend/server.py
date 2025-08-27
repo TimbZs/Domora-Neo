@@ -431,8 +431,8 @@ async def create_booking(
     # Calculate price estimate
     price_estimate = await calculate_price_estimate(
         booking_data.package_id,
-        booking_data.addon_ids,
-        service_address
+        service_address,
+        booking_data.addon_ids
     )
     
     # Create booking
