@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv('/app/frontend/.env')
 
 # Configuration
-BASE_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://domora-marketplace.preview.emergentagent.com')
+BASE_URL = "http://localhost:8001"  # Use localhost for testing since external URL mapping has issues
 API_BASE_URL = f"{BASE_URL}/api"
 
 class DomoraAPITester:
