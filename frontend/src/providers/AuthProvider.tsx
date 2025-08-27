@@ -25,9 +25,34 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Determine the correct backend URL based on environment
+//
+// The previous implementation always returned `http://localhost:8001`. While this
+// works when the frontend runs in a web browser on the same machine as the
+// backend, it breaks for native/mobile builds where `localhost` refers to the
+// device itself. In those cases pressing the "Create Account" button resulted
+// in a silent failure because Axios could not reach the backend.
+//
+// To make the provider functional across platforms we inspect the Expo
+// environment to infer the host of the dev server. If an explicit API URL is
+// provided via `EXPO_PUBLIC_API_URL` we use that. Otherwise we attempt to derive
+// the host from `expo-constants`, which gives us the address of the machine
+// running the Metro bundler. As a final fallback we still use localhost so that
+// web builds continue to work.
 const getBackendUrl = () => {
-  // Always use localhost for development - this works for both local and preview environments
-  // since the backend is running locally on port 8001
+  // Respect explicit configuration first
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (envUrl) {
+    return envUrl;
+  }
+
+  // Try to derive host from Expo's hostUri (e.g. 192.168.1.10:19000)
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (hostUri) {
+    const host = hostUri.split(':')[0];
+    return `http://${host}:8001`;
+  }
+
+  // Fallback for web or non-Expo environments
   return 'http://localhost:8001';
 };
 
