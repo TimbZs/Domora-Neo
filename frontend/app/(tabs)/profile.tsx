@@ -80,7 +80,26 @@ export default function ProfileScreen() {
   };
 
   const handleOptionPress = (optionId: string) => {
-    // For now, show coming soon alert
+    switch (optionId) {
+      case 'personal':
+        router.push('/profile/personal');
+        break;
+      case 'addresses':
+        router.push('/profile/addresses');
+        break;
+      case 'payment':
+        router.push('/profile/payments');
+        break;
+      case 'notifications':
+        router.push('/profile/notifications');
+        break;
+      case 'privacy':
+        router.push('/profile/security');
+        break;
+      case 'support':
+        router.push('/profile/support');
+        break;
+      default:
     Alert.alert(
       'Coming Soon',
       `${profileOptions.find(o => o.id === optionId)?.title} will be available in a future update.`
