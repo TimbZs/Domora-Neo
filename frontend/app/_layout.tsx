@@ -44,6 +44,15 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="auth/login" options={{ title: 'Sign In' }} />
             <Stack.Screen name="auth/register" options={{ title: 'Create Account' }} />
+            <Stack.Screen name="booking/create" options={{ title: 'Book Service' }} />
+            <Stack.Screen name="booking/details" options={{ title: 'Booking Details' }} />
+            <Stack.Screen name="payment/checkout" options={{ title: 'Checkout' }} />
+            <Stack.Screen name="payment/success" options={{ title: 'Payment Success' }} />
+            <Stack.Screen name="payment/cancel" options={{ title: 'Payment Cancelled' }} />
+            <Stack.Screen name="provider/onboarding" options={{ title: 'Provider Setup' }} />
+            <Stack.Screen name="admin/dashboard" options={{ title: 'Admin Panel' }} />
+            <Stack.Screen name="settings/profile" options={{ title: 'Profile Settings' }} />
+            <Stack.Screen name="messaging/chat" options={{ title: 'Messages' }} />
 
           </Stack>
           <StatusBar style="light" />
