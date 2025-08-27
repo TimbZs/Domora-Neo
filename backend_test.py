@@ -304,6 +304,173 @@ class DomoraAPITester:
             self.test_addon = response[0]
         else:
             self.log_result("Get Service Addons", False, f"Status: {status}, Response: {response}")
+
+    # Phase 2 Enhanced Service Catalog Tests
+    async def test_enhanced_service_packages_count(self):
+        """Test Phase 2: Verify we have 30 packages (10 per category)"""
+        success, response, status = await self.make_request('GET', '/services/packages')
+        
+        if success and isinstance(response, list):
+            total_count = len(response)
+            if total_count == 30:
+                self.log_result("Enhanced Packages Count", True, f"✅ Phase 2: Found {total_count} packages (expected 30)")
+            else:
+                self.log_result("Enhanced Packages Count", False, f"❌ Phase 2: Found {total_count} packages, expected 30")
+        else:
+            self.log_result("Enhanced Packages Count", False, f"Status: {status}, Response: {response}")
+    
+    async def test_enhanced_service_addons_count(self):
+        """Test Phase 2: Verify we have 36 addons (12 per category)"""
+        success, response, status = await self.make_request('GET', '/services/addons')
+        
+        if success and isinstance(response, list):
+            total_count = len(response)
+            if total_count == 36:
+                self.log_result("Enhanced Addons Count", True, f"✅ Phase 2: Found {total_count} addons (expected 36)")
+            else:
+                self.log_result("Enhanced Addons Count", False, f"❌ Phase 2: Found {total_count} addons, expected 36")
+        else:
+            self.log_result("Enhanced Addons Count", False, f"Status: {status}, Response: {response}")
+    
+    async def test_service_categories_distribution(self):
+        """Test Phase 2: Verify 10 packages per service category"""
+        success, response, status = await self.make_request('GET', '/services/packages')
+        
+        if success and isinstance(response, list):
+            categories = {}
+            for package in response:
+                service_type = package.get('service_type')
+                categories[service_type] = categories.get(service_type, 0) + 1
+            
+            expected_categories = ['house_cleaning', 'car_washing', 'landscaping']
+            all_correct = True
+            for category in expected_categories:
+                count = categories.get(category, 0)
+                if count != 10:
+                    all_correct = False
+                    break
+            
+            if all_correct and len(categories) == 3:
+                self.log_result("Service Categories Distribution", True, f"✅ Phase 2: Each category has 10 packages - {categories}")
+            else:
+                self.log_result("Service Categories Distribution", False, f"❌ Phase 2: Incorrect distribution - {categories}")
+        else:
+            self.log_result("Service Categories Distribution", False, f"Status: {status}, Response: {response}")
+    
+    async def test_addon_categories_distribution(self):
+        """Test Phase 2: Verify 12 addons per service category"""
+        success, response, status = await self.make_request('GET', '/services/addons')
+        
+        if success and isinstance(response, list):
+            categories = {}
+            for addon in response:
+                service_type = addon.get('service_type')
+                categories[service_type] = categories.get(service_type, 0) + 1
+            
+            expected_categories = ['house_cleaning', 'car_washing', 'landscaping']
+            all_correct = True
+            for category in expected_categories:
+                count = categories.get(category, 0)
+                if count != 12:
+                    all_correct = False
+                    break
+            
+            if all_correct and len(categories) == 3:
+                self.log_result("Addon Categories Distribution", True, f"✅ Phase 2: Each category has 12 addons - {categories}")
+            else:
+                self.log_result("Addon Categories Distribution", False, f"❌ Phase 2: Incorrect distribution - {categories}")
+        else:
+            self.log_result("Addon Categories Distribution", False, f"Status: {status}, Response: {response}")
+    
+    async def test_enhanced_package_fields(self):
+        """Test Phase 2: Verify packages have new fields (features, best_for, max_size)"""
+        success, response, status = await self.make_request('GET', '/services/packages')
+        
+        if success and isinstance(response, list) and len(response) > 0:
+            sample_package = response[0]
+            required_fields = ['features', 'best_for', 'max_size']
+            missing_fields = []
+            
+            for field in required_fields:
+                if field not in sample_package:
+                    missing_fields.append(field)
+            
+            if not missing_fields:
+                self.log_result("Enhanced Package Fields", True, f"✅ Phase 2: All new fields present - {required_fields}")
+            else:
+                self.log_result("Enhanced Package Fields", False, f"❌ Phase 2: Missing fields - {missing_fields}")
+        else:
+            self.log_result("Enhanced Package Fields", False, f"Status: {status}, Response: {response}")
+    
+    async def test_enhanced_addon_duration_field(self):
+        """Test Phase 2: Verify addons have duration_minutes field"""
+        success, response, status = await self.make_request('GET', '/services/addons')
+        
+        if success and isinstance(response, list) and len(response) > 0:
+            sample_addon = response[0]
+            
+            if 'duration_minutes' in sample_addon:
+                self.log_result("Enhanced Addon Duration Field", True, f"✅ Phase 2: duration_minutes field present")
+            else:
+                self.log_result("Enhanced Addon Duration Field", False, f"❌ Phase 2: duration_minutes field missing")
+        else:
+            self.log_result("Enhanced Addon Duration Field", False, f"Status: {status}, Response: {response}")
+    
+    async def test_european_market_pricing(self):
+        """Test Phase 2: Verify EUR currency and realistic European pricing"""
+        success, response, status = await self.make_request('GET', '/services/packages')
+        
+        if success and isinstance(response, list) and len(response) > 0:
+            # Check pricing ranges are realistic for European market
+            prices = [pkg.get('base_price', 0) for pkg in response]
+            min_price = min(prices)
+            max_price = max(prices)
+            
+            # European market should have prices between 15-200 EUR for these services
+            if min_price >= 15 and max_price <= 200:
+                self.log_result("European Market Pricing", True, f"✅ Phase 2: Realistic EUR pricing range €{min_price}-€{max_price}")
+            else:
+                self.log_result("European Market Pricing", False, f"❌ Phase 2: Pricing outside expected range €{min_price}-€{max_price}")
+        else:
+            self.log_result("European Market Pricing", False, f"Status: {status}, Response: {response}")
+    
+    async def test_service_type_filtering(self):
+        """Test Phase 2: Verify filtering by service_type works correctly"""
+        service_types = ['house_cleaning', 'car_washing', 'landscaping']
+        
+        for service_type in service_types:
+            success, response, status = await self.make_request('GET', f'/services/packages?service_type={service_type}')
+            
+            if success and isinstance(response, list):
+                # All returned packages should match the requested service type
+                all_match = all(pkg.get('service_type') == service_type for pkg in response)
+                count = len(response)
+                
+                if all_match and count == 10:  # Should be 10 packages per category
+                    self.log_result(f"Service Type Filtering ({service_type})", True, f"✅ Phase 2: {count} packages correctly filtered")
+                else:
+                    self.log_result(f"Service Type Filtering ({service_type})", False, f"❌ Phase 2: Expected 10 {service_type} packages, got {count}")
+            else:
+                self.log_result(f"Service Type Filtering ({service_type})", False, f"Status: {status}, Response: {response}")
+    
+    async def test_addon_type_filtering(self):
+        """Test Phase 2: Verify addon filtering by service_type works correctly"""
+        service_types = ['house_cleaning', 'car_washing', 'landscaping']
+        
+        for service_type in service_types:
+            success, response, status = await self.make_request('GET', f'/services/addons?service_type={service_type}')
+            
+            if success and isinstance(response, list):
+                # All returned addons should match the requested service type
+                all_match = all(addon.get('service_type') == service_type for addon in response)
+                count = len(response)
+                
+                if all_match and count == 12:  # Should be 12 addons per category
+                    self.log_result(f"Addon Type Filtering ({service_type})", True, f"✅ Phase 2: {count} addons correctly filtered")
+                else:
+                    self.log_result(f"Addon Type Filtering ({service_type})", False, f"❌ Phase 2: Expected 12 {service_type} addons, got {count}")
+            else:
+                self.log_result(f"Addon Type Filtering ({service_type})", False, f"Status: {status}, Response: {response}")
     
     async def test_price_estimate(self):
         """Test price calculation"""
