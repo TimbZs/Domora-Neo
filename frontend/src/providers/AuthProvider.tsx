@@ -61,22 +61,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadStoredAuth = async () => {
     try {
-      const storedToken = await SecureStore.getItemAsync('auth_token');
-      const storedUser = await SecureStore.getItemAsync('user_data');
+      // Check if running on web (SecureStore not available)
+      if (typeof window !== 'undefined' && window.localStorage) {
+        // Web fallback to localStorage
+        const storedToken = window.localStorage.getItem('auth_token');
+        const storedUser = window.localStorage.getItem('user_data');
 
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        
-        // Verify token is still valid
-        try {
-          const response = await axios.get('/auth/me', {
-            headers: { Authorization: `Bearer ${storedToken}` }
-          });
-          setUser(response.data);
-        } catch (error) {
-          // Token invalid, clear storage
-          await clearAuth();
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+          
+          // Verify token is still valid
+          try {
+            const response = await axios.get('/auth/me', {
+              headers: { Authorization: `Bearer ${storedToken}` }
+            });
+            setUser(response.data);
+          } catch (error) {
+            // Token invalid, clear storage
+            await clearAuth();
+          }
+        }
+      } else {
+        // Native app - use SecureStore
+        const storedToken = await SecureStore.getItemAsync('auth_token');
+        const storedUser = await SecureStore.getItemAsync('user_data');
+
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+          
+          // Verify token is still valid
+          try {
+            const response = await axios.get('/auth/me', {
+              headers: { Authorization: `Bearer ${storedToken}` }
+            });
+            setUser(response.data);
+          } catch (error) {
+            // Token invalid, clear storage
+            await clearAuth();
+          }
         }
       }
     } catch (error) {
