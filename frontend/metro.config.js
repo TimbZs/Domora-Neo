@@ -2,6 +2,13 @@ const { getDefaultConfig } = require("expo/metro-config");
 
 const config = getDefaultConfig(__dirname);
 
+// Fix nanoid module resolution issue with expo-router
+config.resolver.alias = {
+  ...config.resolver.alias,
+  'nanoid/non-secure': require.resolve('nanoid/non-secure/index.js'),
+  'nanoid': require.resolve('nanoid/index.js'),
+};
+
 // Optimize file watching to prevent ENOENT errors
 config.resolver.platforms = ['ios', 'android', 'native', 'web'];
 
