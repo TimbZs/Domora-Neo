@@ -3,10 +3,10 @@ const path = require("path");
 
 const config = getDefaultConfig(__dirname);
 
-// Fix nanoid module resolution issue with expo-router
+// Fix nanoid module resolution issue with expo-router using custom patch
 config.resolver.alias = {
   ...config.resolver.alias,
-  'nanoid/non-secure': path.resolve(__dirname, 'node_modules/nanoid/non-secure/index.js'),
+  'nanoid/non-secure': path.resolve(__dirname, 'nanoid-patch.js'),
 };
 
 // Optimize file watching to prevent ENOENT errors
