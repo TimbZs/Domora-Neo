@@ -462,7 +462,12 @@ async def get_bookings(current_user: User = Depends(get_current_user)):
     if current_user.role == UserRole.CUSTOMER:
         filter_query["customer_id"] = current_user.id
     elif current_user.role == UserRole.PROVIDER:
-        filter_query["provider_id"] = current_user.id
+        # Providers should see their assigned bookings as well as unassigned ones
+        filter_query["$or"] = [
+            {"provider_id": current_user.id},
+            {"provider_id": {"$exists": False}},
+            {"provider_id": None},
+        ]
     
     bookings = await db.bookings.find(filter_query).to_list(100)
     return [Booking(**booking) for booking in bookings]
