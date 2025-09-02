@@ -472,6 +472,24 @@ async def get_bookings(current_user: User = Depends(get_current_user)):
     bookings = await db.bookings.find(filter_query).to_list(100)
     return [Booking(**booking) for booking in bookings]
 
+@api_router.get("/bookings/available", response_model=List[Booking])
+async def get_available_bookings(current_user: User = Depends(get_current_user)):
+    """Get bookings that are not yet assigned to any provider"""
+
+    if current_user.role != UserRole.PROVIDER:
+        raise HTTPException(status_code=403, detail="Only providers can view available bookings")
+
+    filter_query = {
+        "$or": [
+            {"provider_id": {"$exists": False}},
+            {"provider_id": None},
+        ],
+        "status": BookingStatus.PENDING,
+    }
+
+    bookings = await db.bookings.find(filter_query).to_list(100)
+    return [Booking(**booking) for booking in bookings]
+
 @api_router.get("/bookings/{booking_id}", response_model=Booking)
 async def get_booking(booking_id: str, current_user: User = Depends(get_current_user)):
     """Get specific booking"""
