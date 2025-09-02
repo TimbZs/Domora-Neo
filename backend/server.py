@@ -462,9 +462,19 @@ async def get_bookings(current_user: User = Depends(get_current_user)):
     if current_user.role == UserRole.CUSTOMER:
         filter_query["customer_id"] = current_user.id
     elif current_user.role == UserRole.PROVIDER:
-        # Providers should see their assigned bookings as well as unassigned ones
+        # Providers should see bookings assigned to either their user ID or
+        # their provider profile ID, as well as unassigned bookings. Some
+        # bookings may reference the provider by profile ID instead of the
+        # user ID, so we gather both identifiers for the filter.
+        provider_profile = await db.provider_profiles.find_one({
+            "user_id": current_user.id
+        })
+        provider_ids = [current_user.id]
+        if provider_profile:
+            provider_ids.append(provider_profile["id"])
+
         filter_query["$or"] = [
-            {"provider_id": current_user.id},
+            {"provider_id": {"$in": provider_ids}},
             {"provider_id": {"$exists": False}},
             {"provider_id": None},
         ]
@@ -499,8 +509,16 @@ async def get_booking(booking_id: str, current_user: User = Depends(get_current_
         raise HTTPException(status_code=404, detail="Booking not found")
     
     # Check access permissions
-    if (current_user.role == UserRole.CUSTOMER and booking["customer_id"] != current_user.id) or \
-       (current_user.role == UserRole.PROVIDER and booking.get("provider_id") != current_user.id):
+    provider_ids: List[str] = []
+    if current_user.role == UserRole.PROVIDER:
+        provider_profile = await db.provider_profiles.find_one({"user_id": current_user.id})
+        provider_ids = [current_user.id]
+        if provider_profile:
+            provider_ids.append(provider_profile["id"])
+
+    if (current_user.role == UserRole.CUSTOMER and booking["customer_id"] != current_user.id) or (
+        current_user.role == UserRole.PROVIDER and booking.get("provider_id") not in provider_ids
+    ):
         if current_user.role != UserRole.ADMIN:
             raise HTTPException(status_code=403, detail="Access denied")
     
